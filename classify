@@ -1,0 +1,47 @@
+import re
+import glob
+from sklearn.datasets import load_files
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import KFold
+
+
+"""
+文本预处理
+"""
+org_dir = './300k-trainingdata'
+for file in glob.glob(org_dir+'/*.txt'):
+    f = open(file,'r',encoding='utf-8')
+    _file = re.sub('300k-trainingdata','trainingdata',file)
+    fp = open(_file,'w',encoding='utf-8')
+    lines = f.readlines()
+    for l in lines:
+        l.split('.')
+        # l.split('。')
+        x = re.sub(r'[\t,\d,$,/,:,.,@,-,《,》“,”,–,!,),%,¿,«,»,·,;,²,、,】,【,¥,]', '', l)
+        fp.write(x)
+
+train = load_files(r'E:\dx\pycharm\project\trainingdata')
+print("总数：{} 类别：{}".format(len(train.data),len(train.target_names)))
+
+"""
+将文档数据转化为TF-IDF向量
+"""
+print("开始文档转化为TF-IDF向量操作。。。")
+vectorizer = TfidfVectorizer(encoding='utf-8')
+x_train = vectorizer.fit_transform(d for d in train.data)
+
+"""
+用多项式分布的朴素贝叶斯算法训练
+"""
+print("开始训练模型操作。。。")
+y_train = train.target
+clf = MultinomialNB(alpha=0.0001)
+clf.fit(x_train,y_train)
+train_score = clf.score(x_train,y_train)
+print("训练得分:{}".format(train_score))
+
+
+
